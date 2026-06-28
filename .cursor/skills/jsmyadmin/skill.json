@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "name": "JSMYADMIN",
+  "description": "phpMyAdmin-like DB admin. React+shadcn/ui + Express. MySQL/MariaDB/PostgreSQL.",
+  "version": "1.0.0",
+  "author": "JSMYADMIN",
+  "license": "MIT",
+  "keywords": ["database", "mysql", "mariadb", "postgresql", "phpmyadmin", "react", "typescript", "sql", "query-builder", "dump-import"],
+  "repository": { "type": "local", "url": "file://./" },
+  "platforms": ["cursor", "cursor-ide", "cursor-chat"],
+  "language": "en",
+  "triggers": ["database management", "sql query", "dump import", "upload progress", "query builder", "database connection"],
+  "files": {
+    "root": "../../..",
+    "client": "../../../client/src",
+    "server": "../../../server/src"
+  },
+  "technologies": {
+    "frontend": ["react", "typescript", "shadcn/ui", "tailwindcss", "zustand", "socket.io-client", "axios"],
+    "backend": ["express", "typescript", "mysql2", "pg", "mariadb", "multer", "socket.io"],
+    "infrastructure": ["docker", "docker-compose"]
+  },
+  "api_endpoints": {
+    "auth": ["POST /api/auth/login", "POST /api/auth/logout", "GET /api/auth/verify"],
+    "databases": ["GET /api/databases", "GET /api/databases/:database/tables", "GET /api/databases/:database/tables/:table/columns"],
+    "query": ["POST /api/query/execute"],
+    "upload": ["POST /api/upload", "GET /api/upload/progress/:fileId", "POST /api/upload/import"]
+  },
+  "websocket_events": ["upload:start", "upload:progress", "upload:complete", "import:start", "import:progress"],
+  "npm_scripts": {
+    "dev": "Run development (client + server)",
+    "build": "Build both client and server"
+  }
+}

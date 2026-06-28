@@ -1,0 +1,174 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%;
+    --radius: 0.5rem;
+    --sidebar: 222.2 47% 11%;
+    --editor: 222.2 84% 4.9%;
+    --title-bar: 222.2 47% 11%;
+    --status-bar: 217.2 32.6% 17.5%;
+    --tab-active: 222.2 84% 4.9%;
+    --tab-inactive: 222.2 47% 11%;
+    --tree-selected: 217.2 91.2% 59.8% / 0.2;
+    --tree-hover: 217.2 32.6% 17.5%;
+    --grid-row-alt: 217.2 32.6% 17.5% / 0.4;
+    --grid-header: 222.2 47% 11%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  .bg-sidebar {
+    background-color: hsl(var(--sidebar));
+  }
+
+  .bg-editor {
+    background-color: hsl(var(--editor));
+  }
+
+  .bg-title-bar {
+    background-color: hsl(var(--title-bar));
+  }
+
+  .bg-status-bar {
+    background-color: hsl(var(--status-bar));
+  }
+
+  .bg-tab-active {
+    background-color: hsl(var(--tab-active));
+  }
+
+  .bg-tab-inactive {
+    background-color: hsl(var(--tab-inactive));
+  }
+
+  .bg-tree-selected {
+    background-color: hsl(var(--tree-selected));
+  }
+
+  .hover\:bg-tree-hover:hover {
+    background-color: hsl(var(--tree-hover));
+  }
+
+  .bg-grid-header {
+    background-color: hsl(var(--grid-header));
+  }
+
+  .bg-grid-row-alt {
+    background-color: hsl(var(--grid-row-alt));
+  }
+
+  .panel-resize-handle {
+    @apply relative z-10 shrink-0 bg-border transition-colors;
+  }
+
+  .panel-resize-handle:hover,
+  .panel-resize-handle[data-separator='active'] {
+    @apply bg-primary;
+  }
+
+  .panel-resize-handle-x {
+    @apply w-1.5 cursor-col-resize;
+  }
+
+  .panel-resize-handle-y {
+    @apply h-1.5 cursor-row-resize;
+  }
+
+  .sql-active-statement {
+    background-color: rgb(59 130 246 / 0.12);
+    border-radius: 2px;
+  }
+
+  .monaco-editor .margin .sql-gutter-play,
+  .monaco-editor .margin .sql-gutter-running,
+  .monaco-editor .margin .sql-gutter-success,
+  .monaco-editor .margin .sql-gutter-error {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 16px !important;
+    height: 16px !important;
+    margin-left: 2px;
+    cursor: pointer;
+    border-radius: 3px;
+    opacity: 0.85;
+    transition: opacity 0.15s;
+  }
+
+  .monaco-editor .margin .sql-gutter-play:hover {
+    opacity: 1;
+    background-color: rgb(34 197 94 / 0.15);
+  }
+
+  .monaco-editor .margin .sql-gutter-play::before {
+    content: '';
+    width: 0;
+    height: 0;
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    border-left: 7px solid #22c55e;
+    margin-left: 2px;
+  }
+
+  .monaco-editor .margin .sql-gutter-running::before {
+    content: '';
+    width: 10px;
+    height: 10px;
+    border: 2px solid #475569;
+    border-top-color: #60a5fa;
+    border-radius: 50%;
+    animation: sql-gutter-spin 0.7s linear infinite;
+  }
+
+  .monaco-editor .margin .sql-gutter-success::before {
+    content: '✓';
+    font-size: 13px;
+    font-weight: 700;
+    color: #22c55e;
+    line-height: 1;
+  }
+
+  .monaco-editor .margin .sql-gutter-error::before {
+    content: '✕';
+    font-size: 11px;
+    font-weight: 700;
+    color: #ef4444;
+    line-height: 1;
+  }
+
+  @keyframes sql-gutter-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+}

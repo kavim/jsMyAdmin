@@ -1,0 +1,41 @@
+---
+description: Elendra (JSMYADMIN) core conventions — stack, layout, API patterns
+alwaysApply: true
+---
+
+# Elendra Core
+
+## Stack
+- Client: React 18, TS, shadcn/ui, Tailwind, Zustand, Socket.io, Axios — `:5173`
+- Server: Express, TS, mysql2/pg/mariadb, Multer, Socket.io, JWT — `:3000`
+- Monorepo: npm workspaces (`client/`, `server/`)
+
+## Layout
+```
+client/src/ → components/, pages/, stores/, lib/, types/
+server/src/ → routes/, db/, middleware/, socket/, types/
+```
+
+## Key files
+- `server/src/db/connection-manager.ts` — multi-DB connections
+- `server/src/routes/auth.routes.ts` — JWT auth
+- `client/src/stores/authStore.ts` — auth (localStorage)
+- `client/src/lib/api.ts` — Axios + JWT interceptor
+
+## Conventions
+- API responses: `{ data: ... }` wrapper
+- New page: `pages/` → `App.tsx` route → `Sidebar.tsx` link
+- New API: `server/src/routes/` + auth middleware → `client/src/lib/api.ts`
+- shadcn: `cd client && npx shadcn-ui@latest add [name]`
+- Backend: TS CommonJS. Frontend: functional React components
+
+## Commands
+```bash
+npm run dev          # client + server
+npm run dev:client   # :5173
+npm run dev:server   # :3000
+npm run build
+```
+
+## Domain skill
+For DB admin features, read `.cursor/skills/jsmyadmin/SKILL.md`.

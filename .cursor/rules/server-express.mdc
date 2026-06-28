@@ -1,0 +1,41 @@
+---
+description: Express server patterns — routes, auth, DB, WebSocket
+globs: server/**/*.{ts,js}
+alwaysApply: false
+---
+
+# Server (Express)
+
+## Structure
+- `routes/` — HTTP endpoints (auth, database, query, table, upload)
+- `db/connection-manager.ts` — MySQL/MariaDB/PostgreSQL abstraction
+- `middleware/auth.ts` — JWT validation; apply to protected routes
+- `middleware/error-handler.ts` — centralized error responses
+- `socket/socket-handler.ts` — upload/import progress events
+
+## Route pattern
+```typescript
+router.get('/:database/tables', authMiddleware, async (req, res, next) => {
+  try {
+    const tables = await connectionManager.getTables(req.params.database);
+    res.json({ data: tables });
+  } catch (err) { next(err); }
+});
+```
+
+## API conventions
+- All responses: `{ data: T }` or `{ error: string }`
+- Protected routes: always use auth middleware
+- DB access: always via `connection-manager.ts`, never direct driver calls in routes
+- Uploads: Multer → temp storage → import via socket progress
+
+## WebSocket events
+`upload:start|progress|complete`, `import:start|progress`
+
+## New route checklist
+1. Route file in `server/src/routes/`
+2. Register in `server/src/app.ts`
+3. Auth middleware if protected
+4. Types in `server/src/types/`
+5. Mirror endpoint in `client/src/lib/api.ts`
+6. Update feature spec + `docs/memory/STATE.md`

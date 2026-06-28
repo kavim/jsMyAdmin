@@ -1,0 +1,38 @@
+---
+description: React client patterns — components, stores, API, shadcn
+globs: client/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Client (React)
+
+## Structure
+- `pages/` — route-level components (LoginPage, QueryPage, etc.)
+- `components/ui/` — shadcn primitives (do not edit unless customizing)
+- `components/layout/` — Sidebar, TopBar, MainLayout
+- `components/query/` — SQL editor, results, schema browser
+- `stores/` — Zustand (authStore, databaseStore, queryStore)
+- `lib/api.ts` — all HTTP calls; add new endpoints here
+- `lib/socket.ts` — Socket.io client for upload/import progress
+
+## Patterns
+```tsx
+// Store usage
+const { databases, fetchDatabases } = useDatabaseStore();
+
+// API call via lib/api.ts — never raw axios in components
+const result = await api.getTables(database);
+```
+
+## New page checklist
+1. Component in `client/src/pages/`
+2. Route in `client/src/App.tsx`
+3. Nav link in `client/src/components/layout/Sidebar.tsx`
+4. API fns in `client/src/lib/api.ts` if needed
+5. Types in `client/src/types/`
+6. Update feature spec + `docs/memory/STATE.md`
+
+## UI
+- Tailwind for layout/spacing; shadcn for interactive elements
+- Match existing pages: card-based layout, sidebar navigation
+- Progress events: subscribe via `lib/socket.ts` (upload/import)

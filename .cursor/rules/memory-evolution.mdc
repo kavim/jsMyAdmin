@@ -1,0 +1,45 @@
+---
+description: When and how to update project AI memory as the codebase evolves
+alwaysApply: true
+---
+
+# Memory Evolution
+
+Project memory lives in `docs/memory/`. Update it so future AI sessions start with accurate context.
+
+## When to update
+
+| Trigger | Update |
+|---------|--------|
+| Feature completed | `STATE.md` + feature spec status |
+| New recurring pattern | `PATTERNS.md` |
+| Architecture/trade-off choice | `DECISIONS.md` |
+| Spec drift (code ≠ spec) | Fix spec or code, then `STATE.md` |
+| Deprecated feature | Mark `deprecated` in spec + STATE |
+
+## STATE.md rules
+- List only **implemented** files/features
+- One line per item: `path — purpose`
+- Separate sections: Client, Server, API, WebSocket
+- Mark planned items explicitly as `planned:` prefix
+
+## DECISIONS.md format (ADR-lite)
+```markdown
+## ADR-NNN: Title
+**Date:** YYYY-MM-DD | **Status:** accepted
+**Context:** ...
+**Decision:** ...
+**Consequences:** ...
+```
+
+## PATTERNS.md rules
+- Copy-pasteable examples from real codebase
+- Tag with area: `[client]`, `[server]`, `[api]`, `[socket]`
+- Remove patterns that no longer apply
+
+## Do NOT
+- Duplicate AGENTS.md or SPEC.md content
+- Store secrets or .env values
+- Write verbose prose — keep entries scannable
+
+Use skill `update-memory` after significant changes.

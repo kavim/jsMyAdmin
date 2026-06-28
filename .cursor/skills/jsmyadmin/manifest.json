@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "name": "jsmyadmin",
+  "description": "A full-featured database administration tool (phpMyAdmin-like) with React + shadcn/ui and Express.js, supporting MySQL, MariaDB, and PostgreSQL",
+  "version": "1.0.0",
+  "author": "JSMYADMIN",
+  "license": "MIT",
+  "keywords": [
+    "database",
+    "mysql",
+    "mariadb",
+    "postgresql",
+    "phpmyadmin",
+    "react",
+    "typescript",
+    "sql",
+    "query-builder",
+    "dump-import"
+  ],
+  "repository": {
+    "type": "local",
+    "url": "file://./"
+  },
+  "platforms": ["cursor", "cursor-ide", "cursor-chat"],
+  "language": "en",
+  "triggers": [
+    "database management",
+    "sql query",
+    "dump import",
+    "upload progress",
+    "query builder",
+    "database connection",
+    "mysql",
+    "mariadb",
+    "postgresql"
+  ],
+  "files": {
+    "root": "../../../..",
+    "client": "../../../client/src",
+    "server": "../../../server/src"
+  },
+  "environment": {
+    "development": {
+      "client": "http://localhost:5173",
+      "server": "http://localhost:3000"
+    },
+    "production": {
+      "port": 3000
+    }
+  },
+  "technologies": {
+    "frontend": [
+      "react",
+      "typescript",
+      "shadcn/ui",
+      "tailwindcss",
+      "zustand",
+      "socket.io-client",
+      "axios",
+      "@tanstack/react-query",
+      "react-router-dom"
+    ],
+    "backend": [
+      "express",
+      "typescript",
+      "mysql2",
+      "pg",
+      "mariadb",
+      "multer",
+      "socket.io",
+      "jsonwebtoken",
+      "zod"
+    ],
+    "infrastructure": [
+      "docker",
+      "docker-compose"
+    ]
+  },
+  "api_endpoints": {
+    "auth": [
+      "POST /api/auth/login",
+      "POST /api/auth/logout",
+      "GET /api/auth/verify"
+    ],
+    "databases": [
+      "GET /api/databases",
+      "GET /api/databases/:database/tables",
+      "GET /api/databases/:database/tables/:table/columns"
+    ],
+    "query": [
+      "POST /api/query/execute",
+      "GET /api/query/history"
+    ],
+    "tables": [
+      "GET /api/tables/data",
+      "POST /api/tables/row",
+      "PATCH /api/tables/row/:id",
+      "DELETE /api/tables/row/:id"
+    ],
+    "upload": [
+      "POST /api/upload",
+      "GET /api/upload/progress/:fileId",
+      "POST /api/upload/import",
+      "DELETE /api/upload/:fileId"
+    ]
+  },
+  "websocket_events": {
+    "upload:start": "Emitted when upload starts",
+    "upload:progress": "Real-time upload progress",
+    "upload:complete": "Upload completed",
+    "import:start": "Emitted when import starts",
+    "import:progress": "Real-time import progress",
+    "import:error": "Import error occurred"
+  },
+  "database_types": {
+    "mysql": {
+      "default_port": 3306,
+      "package": "mysql2"
+    },
+    "mariadb": {
+      "default_port": 3306,
+      "package": "mariadb"
+    },
+    "postgresql": {
+      "default_port": 5432,
+      "package": "pg"
+    }
+  },
+  "npm_scripts": {
+    "dev": "Run development (client + server)",
+    "dev:client": "Run React frontend",
+    "dev:server": "Run Express backend",
+    "build": "Build both client and server",
+    "build:client": "Build React frontend",
+    "build:server": "Build Express backend"
+  }
+}

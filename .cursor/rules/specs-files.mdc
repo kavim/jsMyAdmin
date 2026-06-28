@@ -1,0 +1,37 @@
+---
+description: Format and workflow for feature spec files in docs/specs/features/
+globs: docs/specs/**/*.md
+alwaysApply: false
+---
+
+# Feature Spec Files
+
+## Required sections
+
+Every spec in `docs/specs/features/` must have:
+- Status (draft → approved → in-progress → implemented)
+- Problem, Scope, Acceptance criteria
+- Files affected (explicit list)
+- API/UI changes if applicable
+
+## Template
+
+Copy from `.cursor/skills/spec-driven-dev/feature-spec-template.md`
+
+## Status transitions
+
+- `draft` — AI or dev writing, not ready to implement
+- `approved` — ready for implementation
+- `in-progress` — active development
+- `implemented` — done, STATE.md updated
+- `deprecated` — superseded, do not implement
+
+## Do not
+
+- Put implementation details that belong in code comments
+- Duplicate content from STATE.md (link instead)
+- Leave acceptance criteria vague ("works correctly")
+
+## After status → implemented
+
+Trigger `update-memory` skill to sync STATE.md.

@@ -1,0 +1,42 @@
+---
+description: Spec Driven Development workflow — spec before code, verify after
+alwaysApply: true
+---
+
+# Spec Driven Development (SDD)
+
+## Before any feature or refactor
+
+1. Read `AGENTS.md` (project map)
+2. Read `docs/memory/STATE.md` (what exists today)
+3. Find or create spec in `docs/specs/features/`
+4. If no spec exists → use skill `spec-driven-dev` to draft one **before** coding
+
+## Spec hierarchy
+
+| File | Purpose |
+|------|---------|
+| `SPEC.md` | Master product spec (vision, architecture) |
+| `docs/specs/features/*.md` | Per-feature specs (requirements, API, UI, acceptance) |
+| `docs/memory/STATE.md` | Implementation truth (updated after each feature) |
+| `docs/memory/DECISIONS.md` | Architecture decisions (ADR) |
+| `docs/memory/PATTERNS.md` | Discovered code patterns |
+
+## Implementation rules
+
+- Code must match active feature spec. Spec conflict → ask user or update spec first.
+- Minimal diff: only files listed in spec's "Files affected".
+- New API/page/store → update spec **and** `docs/memory/STATE.md` when done.
+- Do not implement items marked `Status: planned` in STATE.md unless spec exists.
+
+## After implementation
+
+Run memory update (skill `update-memory`):
+- [ ] `STATE.md` reflects new/changed files
+- [ ] New patterns → `PATTERNS.md`
+- [ ] Non-obvious choices → `DECISIONS.md`
+- [ ] Feature spec status → `implemented`
+
+## Spec status values
+
+`draft` → `approved` → `in-progress` → `implemented` → `deprecated`

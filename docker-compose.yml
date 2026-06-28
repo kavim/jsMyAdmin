@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  jsmyadmin:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - uploads:/tmp/jsmyadmin/uploads
+    environment:
+      - NODE_ENV=production
+      - JWT_SECRET=${JWT_SECRET:-jsmyadmin-dev-secret-change-in-production}
+      - UPLOAD_DIR=/tmp/jsmyadmin/uploads
+    restart: unless-stopped
+
+volumes:
+  uploads:
