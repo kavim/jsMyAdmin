@@ -66,6 +66,43 @@
 - New IDE components must use semantic tokens (`--sidebar`, `--editor`, etc.)
 - Table grid `where`/`orderBy` validated server-side with regex whitelist
 
+## ADR-008: SQL script storage in DATA_DIR/scripts
+
+**Date:** 2026-06-28 | **Status:** accepted
+
+**Context:** SQL tabs were ephemeral (in-memory only). Users need persistent `.sql` files visible in the IDE explorer, like Laravel `storage/`.
+
+**Decision:**
+- `SCRIPTS_DIR` env var, default `${DATA_DIR}/scripts`
+- Separate from `UPLOAD_DIR` (dump imports) — scripts are small working files
+- REST API at `/api/scripts` with path traversal protection
+- Explorer **Scripts** tree + Save/Ctrl+S in SqlTabView
+
+**Consequences:**
+- Docker: scripts persist in `data` volume automatically
+- Dev: files land in `./data/scripts/` (gitignored via data/)
+- Tabs track `filePath` + dirty state via `savedSql` baseline
+
+## ADR-007: Docker single-image deployment (phpMyAdmin-like)
+
+**Date:** 2026-06-28 | **Status:** accepted
+
+**Context:** Project should be usable like phpMyAdmin — one `docker run` connects to any remote DB. Previously required docker-compose and path-based data dirs tied to project root.
+
+**Decision:**
+- Single `Dockerfile` with multi-stage build; no docker-compose required for production
+- `DATA_DIR=/data` and `UPLOAD_DIR=/uploads` env vars for all persistent state (query history, upload progress, uploaded files)
+- Image fails fast if `JWT_SECRET` not set (no insecure fallback in production)
+- HEALTHCHECK at `/api/health`
+- `dumb-init` for signal handling; ConnectionManager releases connections on shutdown
+- All future code paths requiring persistence must use `DATA_DIR` or `UPLOAD_DIR` env vars
+
+**Consequences:**
+- `upload.routes.ts` and `query.routes.ts` now read `DATA_DIR` from env (fallback to `__dirname/../../data`)
+- Docker compose simplified to two named volumes (`data`, `uploads`) and mandatory `JWT_SECRET`
+- New Cursor rule (`.cursor/rules/docker-image.mdc`) enforces constraints on Docker-related changes
+- Published images via GHCR on tag push (future step)
+
 ## ADR-005: React Query for server state, Zustand for UI state
 
 **Date:** 2026-06-18 | **Status:** accepted

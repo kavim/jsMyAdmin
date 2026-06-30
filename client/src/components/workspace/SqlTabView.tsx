@@ -1,7 +1,7 @@
 import { useCallback, useRef, useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Play, AlignLeft, Clock, ChevronDown, Download } from 'lucide-react';
+import { Play, AlignLeft, Clock, ChevronDown, Download, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -21,6 +21,8 @@ import { formatSql } from '@/lib/formatSql';
 import { getErrorMessage } from '@/lib/errors';
 import { notifyQueryError, notifyQuerySuccess } from '@/lib/notifications';
 import { queryApi } from '@/lib/api';
+import { useSaveScript } from '@/hooks/useScripts';
+import SaveScriptDialog from './SaveScriptDialog';
 
 interface SqlTabViewProps {
   tab: SqlTab;
@@ -39,7 +41,17 @@ export default function SqlTabView({ tab }: SqlTabViewProps) {
     history,
     columnsByTable,
     registerInsertTextHandler,
+    registerSaveHandler,
+    markTabSaved,
+    pendingSaveAsFolder,
+    consumePendingSaveAs,
+    activeTabId,
   } = useWorkspaceStore();
+
+  const saveScript = useSaveScript();
+  const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+  const [saveDialogFolder, setSaveDialogFolder] = useState('');
+  const [saveDialogName, setSaveDialogName] = useState('');
 
   const { data: schemaTables = [] } = useTables(currentDatabase);
   const executeQuery = useExecuteQuery();
@@ -52,6 +64,49 @@ export default function SqlTabView({ tab }: SqlTabViewProps) {
     useWorkspaceStore.getState().consumePendingInsert();
     return () => registerInsertTextHandler(null);
   }, [registerInsertTextHandler, tab.id]);
+
+  const openSaveAs = useCallback(
+    (folder = '', name = '') => {
+      setSaveDialogFolder(folder);
+      setSaveDialogName(name || (tab.filePath ? tab.filePath.split('/').pop()! : ''));
+      setSaveDialogOpen(true);
+    },
+    [tab.filePath]
+  );
+
+  const persistScript = useCallback(
+    async (path: string) => {
+      const sql = tab.sql;
+      try {
+        await saveScript.mutateAsync({ path, content: sql });
+        markTabSaved(tab.id, path, sql);
+        toast.success(`Saved ${path}`);
+      } catch (err) {
+        toast.error(getErrorMessage(err));
+      }
+    },
+    [tab.id, tab.sql, saveScript, markTabSaved]
+  );
+
+  const handleSave = useCallback(() => {
+    if (tab.filePath) {
+      persistScript(tab.filePath);
+    } else {
+      openSaveAs();
+    }
+  }, [tab.filePath, persistScript, openSaveAs]);
+
+  useEffect(() => {
+    if (activeTabId !== tab.id) return;
+    registerSaveHandler(handleSave);
+    return () => registerSaveHandler(null);
+  }, [activeTabId, tab.id, handleSave, registerSaveHandler]);
+
+  useEffect(() => {
+    if (activeTabId !== tab.id || pendingSaveAsFolder === null) return;
+    const folder = consumePendingSaveAs();
+    if (folder !== null) openSaveAs(folder);
+  }, [activeTabId, tab.id, pendingSaveAsFolder, consumePendingSaveAs, openSaveAs]);
 
   useEffect(() => {
     if (statementExecution?.status !== 'success' && statementExecution?.status !== 'error') return;
@@ -154,7 +209,34 @@ export default function SqlTabView({ tab }: SqlTabViewProps) {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col bg-editor">
+      <SaveScriptDialog
+        open={saveDialogOpen}
+        onOpenChange={setSaveDialogOpen}
+        defaultFolder={saveDialogFolder}
+        defaultName={saveDialogName}
+        onSave={persistScript}
+      />
       <div className="flex items-center gap-1 border-b border-border bg-card px-2 py-1">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs gap-1"
+              onClick={handleSave}
+              disabled={saveScript.isPending}
+            >
+              <Save className="h-3.5 w-3.5" />
+              Save
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Save (Ctrl+S)</TooltipContent>
+        </Tooltip>
+
+        <Button variant="ghost" size="sm" className="text-xs" onClick={() => openSaveAs()}>
+          Save As
+        </Button>
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="sm" className="text-xs gap-1">

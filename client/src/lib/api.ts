@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
-import { AuthResponse, DbCredentials, ColumnInfo, DatabaseInfo, HistoryItem, QueryResult, TableInfo, UploadedFile } from '@/types';
+import { AuthResponse, DbCredentials, ColumnInfo, DatabaseInfo, HistoryItem, QueryResult, ScriptFile, ScriptNode, TableInfo, UploadedFile } from '@/types';
 
 const api = axios.create({
   baseURL: '/api',
@@ -110,6 +110,22 @@ export const uploadApi = {
     api.post('/upload/import', { fileId, database }),
 
   delete: (fileId: string) => api.delete('/upload/' + fileId),
+};
+
+export const scriptsApi = {
+  list: (): Promise<AxiosResponse<ScriptNode[]>> => api.get('/scripts'),
+
+  read: (path: string): Promise<AxiosResponse<ScriptFile>> =>
+    api.get('/scripts/file', { params: { path } }),
+
+  save: (path: string, content: string): Promise<AxiosResponse<{ path: string; updatedAt: string }>> =>
+    api.put('/scripts/file', { path, content }),
+
+  createFolder: (path: string): Promise<AxiosResponse<{ path: string }>> =>
+    api.post('/scripts/folder', { path }),
+
+  delete: (path: string): Promise<AxiosResponse<{ deleted: boolean }>> =>
+    api.delete('/scripts', { params: { path } }),
 };
 
 export default api;

@@ -13,6 +13,8 @@ export interface SqlTab {
   sql: string;
   result: QueryResult | null;
   error: string | null;
+  filePath?: string;
+  savedSql?: string;
 }
 
 export interface TableDataTab {
@@ -33,14 +35,17 @@ export type ToolPanelView = 'notifications' | 'query-builder' | 'dump';
 
 let sqlTabCounter = 1;
 
-function makeSqlTab(sql = '', title?: string): SqlTab {
+function makeSqlTab(sql = '', title?: string, filePath?: string): SqlTab {
+  const name = title ?? (filePath ? filePath.split('/').pop()! : `console_${sqlTabCounter++}`);
   return {
     id: crypto.randomUUID(),
     kind: 'sql',
-    title: title ?? `console_${sqlTabCounter++}`,
+    title: name,
     sql,
     result: null,
     error: null,
+    filePath,
+    savedSql: filePath ? sql : undefined,
   };
 }
 
@@ -54,11 +59,15 @@ interface WorkspaceState {
   toolPanelVisible: boolean;
   toolPanelView: ToolPanelView;
   insertTextHandler: ((text: string) => void) | null;
+  saveHandler: (() => void) | null;
   pendingInsert: string | null;
+  pendingSaveAsFolder: string | null;
 
   createSqlTab: (sql?: string, title?: string) => string;
+  openScriptTab: (path: string, content: string) => string;
   openTableTab: (table: string, database: string) => string;
   openSqlWithQuery: (sql: string, title?: string) => string;
+  markTabSaved: (id: string, path: string, content: string) => void;
   closeTab: (id: string) => void;
   setActiveTab: (id: string) => void;
   setTabSql: (id: string, sql: string) => void;
@@ -75,7 +84,10 @@ interface WorkspaceState {
   setToolPanelView: (view: ToolPanelView) => void;
   openToolPanel: (view?: ToolPanelView) => void;
   registerInsertTextHandler: (handler: ((text: string) => void) | null) => void;
+  registerSaveHandler: (handler: (() => void) | null) => void;
   consumePendingInsert: () => void;
+  requestSaveAs: (folder?: string) => void;
+  consumePendingSaveAs: () => string | null;
   insertIntoActiveEditor: (text: string) => void;
   reorderTab: (fromIndex: number, toIndex: number) => void;
   updateTableTab: (id: string, patch: Partial<Pick<TableDataTab, 'where' | 'orderBy' | 'page' | 'limit'>>) => void;
@@ -95,10 +107,28 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   toolPanelVisible: true,
   toolPanelView: 'notifications',
   insertTextHandler: null,
+  saveHandler: null,
   pendingInsert: null,
+  pendingSaveAsFolder: null,
 
   createSqlTab: (sql = '', title?: string) => {
     const tab = makeSqlTab(sql, title);
+    set((state) => ({
+      tabs: [...state.tabs, tab],
+      activeTabId: tab.id,
+    }));
+    return tab.id;
+  },
+
+  openScriptTab: (path, content) => {
+    const existing = get().tabs.find(
+      (t) => t.kind === 'sql' && t.filePath === path
+    );
+    if (existing) {
+      set({ activeTabId: existing.id });
+      return existing.id;
+    }
+    const tab = makeSqlTab(content, path.split('/').pop(), path);
     set((state) => ({
       tabs: [...state.tabs, tab],
       activeTabId: tab.id,
@@ -151,7 +181,25 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
 
   setTabSql: (id, sql) =>
     set((state) => ({
-      tabs: state.tabs.map((t) => (t.id === id && t.kind === 'sql' ? { ...t, sql } : t)),
+      tabs: state.tabs.map((t) => {
+        if (t.id !== id || t.kind !== 'sql') return t;
+        return { ...t, sql };
+      }),
+    })),
+
+  markTabSaved: (id, path, content) =>
+    set((state) => ({
+      tabs: state.tabs.map((t) => {
+        if (t.id !== id || t.kind !== 'sql') return t;
+        const fileName = path.split('/').pop() ?? path;
+        return {
+          ...t,
+          filePath: path,
+          savedSql: content,
+          sql: content,
+          title: fileName,
+        };
+      }),
     })),
 
   setTabResult: (id, result) =>
@@ -197,6 +245,8 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
 
   registerInsertTextHandler: (handler) => set({ insertTextHandler: handler }),
 
+  registerSaveHandler: (handler) => set({ saveHandler: handler }),
+
   insertIntoActiveEditor: (text) => {
     const { activeTabId, tabs, insertTextHandler } = get();
     const active = tabs.find((t) => t.id === activeTabId);
@@ -214,6 +264,14 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
       get().insertTextHandler!(text);
     }
     set({ pendingInsert: null });
+  },
+
+  requestSaveAs: (folder = '') => set({ pendingSaveAsFolder: folder }),
+
+  consumePendingSaveAs: () => {
+    const folder = get().pendingSaveAsFolder;
+    set({ pendingSaveAsFolder: null });
+    return folder;
   },
 
   reorderTab: (fromIndex, toIndex) =>
@@ -252,4 +310,11 @@ export function useActiveWorkspaceTab(): WorkspaceTab | null {
 export function useActiveSqlTab(): SqlTab | null {
   const tab = useActiveWorkspaceTab();
   return tab?.kind === 'sql' ? tab : null;
+}
+
+export function isSqlTabDirty(tab: SqlTab): boolean {
+  if (tab.filePath && tab.savedSql !== undefined) {
+    return tab.sql !== tab.savedSql;
+  }
+  return tab.sql.trim().length > 0;
 }

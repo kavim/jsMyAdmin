@@ -26,9 +26,11 @@
 | Path | Purpose |
 |------|---------|
 | `components/explorer/DatabaseExplorer.tsx` | Global tree: connection → DB → tables → columns |
+| `components/explorer/ScriptsTree.tsx` | Scripts folder tree (`data/scripts/`) |
 | `components/workspace/TabBar.tsx` | Unified workspace tabs (SQL + table data) |
 | `components/workspace/WorkspaceArea.tsx` | Renders active tab by kind |
-| `components/workspace/SqlTabView.tsx` | SQL editor + results (from QueryConsole) |
+| `components/workspace/SqlTabView.tsx` | SQL editor + results + Save/Save As |
+| `components/workspace/SaveScriptDialog.tsx` | Save As dialog (folder + filename) |
 | `components/workspace/TableDataView.tsx` | DataGrip-style data grid with WHERE/ORDER BY |
 | `components/workspace/WelcomeTab.tsx` | Empty state + shortcuts |
 | `components/workspace/CommandPalette.tsx` | Ctrl+Shift+P command palette |
@@ -64,8 +66,8 @@
 | `hooks/useExecuteQuery.ts` | React Query mutation — execute SQL |
 | `hooks/useQueryHistory.ts` | React Query — query history |
 | `hooks/useTableData.ts` | React Query — table grid data |
-| `hooks/useIdeShortcuts.ts` | IDE keyboard shortcuts |
-| `hooks/useAuth.ts` | Login/logout mutations |
+| `hooks/useScripts.ts` | React Query — list/save/delete script files |
+| `hooks/useIdeShortcuts.ts` | IDE keyboard shortcuts (incl. Ctrl+S save) |
 | `hooks/useDumpUpload.ts` | Upload/import/delete dump mutations |
 
 ## Client — Stores & Lib
@@ -100,6 +102,7 @@
 | `routes/query.routes.ts` | `/api/query` | execute, history (GET/DELETE), export (CSV/JSON) |
 | `routes/table.routes.ts` | `/api/tables` | CRUD rows + grid data (parameterized queries, dynamic PK) |
 | `routes/upload.routes.ts` | `/api/upload` | upload, progress, import, delete |
+| `routes/scripts.routes.ts` | `/api/scripts` | list tree, read/save file, create folder, delete |
 
 ## Server — Core
 
@@ -133,6 +136,11 @@ POST   /api/upload
 GET    /api/upload/progress/:fileId
 POST   /api/upload/import
 DELETE /api/upload/:fileId
+GET    /api/scripts                              # script tree
+GET    /api/scripts/file?path=                  # read .sql
+PUT    /api/scripts/file                        # { path, content }
+POST   /api/scripts/folder                      # { path }
+DELETE /api/scripts?path=                       # delete file/folder
 ```
 
 ## WebSocket Events
@@ -166,3 +174,4 @@ DELETE /api/upload/:fileId
 | `docs/specs/features/modernize-server-architecture.md` | draft |
 | `docs/specs/features/sql-console-cursor-execution.md` | implemented |
 | `docs/specs/features/datagrip-ux-and-theme-system.md` | implemented |
+| `docs/specs/features/sql-script-storage.md` | implemented |

@@ -4,6 +4,7 @@ import { databaseRouter } from './routes/database.routes';
 import { queryRouter } from './routes/query.routes';
 import { tableRouter } from './routes/table.routes';
 import { uploadRouter } from './routes/upload.routes';
+import { scriptsRouter } from './routes/scripts.routes';
 import { errorHandler } from './middleware/error-handler';
 
 export const app: Express = express();
@@ -20,6 +21,7 @@ app.use('/api/databases', databaseRouter);
 app.use('/api/query', queryRouter);
 app.use('/api/tables', tableRouter);
 app.use('/api/upload', uploadRouter);
+app.use('/api/scripts', scriptsRouter);
 
 app.use((_req: Request, res: Response) => {
   res.status(404).json({ error: 'Not found' });

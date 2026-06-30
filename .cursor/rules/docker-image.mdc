@@ -1,0 +1,39 @@
+---
+description: Docker single-image deployment constraints
+globs: Dockerfile, docker-compose.yml, .github/workflows/docker-*, docs/specs/features/docker-single-image.md
+---
+# Docker single-image rule
+
+**Always consider Docker single-image deployment when editing these files.**
+
+## Golden rule
+
+The project must remain runnable as `docker run -p 3000:3000 -e JWT_SECRET=x jsmyadmin`.
+
+## Constraints
+
+1. **No hardcoded paths** — use `DATA_DIR` / `UPLOAD_DIR` env vars, not `../../data/` relative to `__dirname`
+2. **No binaries** — Alpine `apk add` only for dumb-init; no system MySQL/PostgreSQL
+3. **No runtime build step** — image must contain pre-built `client/dist/` + `server/dist/`
+4. **Non-root user** — `USER nodejs` (UID 1001)
+5. **All state in volumes** — `/data` and `/uploads` must be mounted by user; app creates them at startup if absent
+
+## Checklist when adding a file/feature
+
+- [ ] Does it need persistent state? → Put in `DATA_DIR`
+- [ ] Does it accept uploaded files? → Put in `UPLOAD_DIR`
+- [ ] Does it need a config value? → Make it an env var with a sensible default
+- [ ] Will it break if `/data` is read-only? → If yes, document that the user must mount a writable volume
+
+## Validation
+
+```bash
+# Smoke test the image locally
+docker build -t jsmyadmin:test .
+docker run --rm -p 3000:3000 -e JWT_SECRET=test123 jsmyadmin:test
+# Should start and respond on :3000
+```
+
+## Reference
+
+Full spec at `docs/specs/features/docker-single-image.md`.

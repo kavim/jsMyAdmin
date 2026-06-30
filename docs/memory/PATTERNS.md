@@ -127,8 +127,20 @@ When: SQL console or table data view in IDE
 
 ```typescript
 // stores/workspaceStore.ts
-createSqlTab() | openTableTab(table, db) | openSqlWithQuery(sql, title)
+createSqlTab() | openTableTab(table, db) | openSqlWithQuery(sql, title) | openScriptTab(path, content)
+// SqlTab: filePath + savedSql for dirty tracking; isSqlTabDirty(tab)
 // components/workspace/WorkspaceArea.tsx renders by tab.kind
+```
+
+## [api] Script file storage
+
+When: persist `.sql` working files server-side
+
+```typescript
+// server: SCRIPTS_DIR = process.env.SCRIPTS_DIR || path.join(DATA_DIR, 'scripts')
+// resolveSafePath() — prefix check blocks traversal
+// client: scriptsApi.list() | .save(path, content) | readScriptFile(path)
+// Explorer ScriptsTree → double-click opens openScriptTab()
 ```
 
 ## [client] Notifications bridge

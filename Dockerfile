@@ -17,7 +17,7 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-RUN apk add --no-cache dumb-init
+RUN apk add --no-cache dumb-init curl
 
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/client/dist ./client/dist
@@ -28,16 +28,25 @@ COPY --from=builder /app/server/package.json ./server/
 RUN addgroup -g 1001 -S nodejs && \
     adduser -u 1001 -S nodejs -G nodejs
 
-RUN mkdir -p /tmp/jsmyadmin/uploads && chown -R nodejs:nodejs /tmp/jsmyadmin
+RUN mkdir -p /data /uploads && chown -R nodejs:nodejs /data /uploads
 
 USER nodejs
 
 ENV NODE_ENV=production
 ENV PORT=3000
-ENV UPLOAD_DIR=/tmp/jsmyadmin/uploads
+ENV DATA_DIR=/data
+ENV UPLOAD_DIR=/uploads
 
 EXPOSE 3000
 
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:${PORT}/api/health || exit 1
+
 ENTRYPOINT ["dumb-init", "--"]
 
-CMD ["node", "server/dist/index.js"]
+CMD node -e "
+  if (!process.env.JWT_SECRET) {
+    console.error('FATAL: JWT_SECRET environment variable is required in production.');
+    process.exit(1);
+  }
+" && node server/dist/index.js

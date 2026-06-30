@@ -1,7 +1,7 @@
 import { Plus, X, Code2, Table2, GripVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { useWorkspaceStore, WorkspaceTab } from '@/stores/workspaceStore';
+import { useWorkspaceStore, WorkspaceTab, isSqlTabDirty } from '@/stores/workspaceStore';
 import { cn } from '@/lib/utils';
 
 function tabIcon(tab: WorkspaceTab) {
@@ -12,6 +12,10 @@ function tabIcon(tab: WorkspaceTab) {
 
 function tabTitle(tab: WorkspaceTab): string {
   if (tab.kind === 'welcome') return 'Welcome';
+  if (tab.kind === 'sql') {
+    const dirty = isSqlTabDirty(tab) ? ' *' : '';
+    return tab.title + dirty;
+  }
   return tab.title;
 }
 
@@ -31,7 +35,21 @@ export default function TabBar() {
     }
   };
 
-  if (tabs.length === 0) return null;
+  if (tabs.length === 0) {
+    return (
+      <div className="flex items-center border-b border-border bg-tab-inactive">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => createSqlTab()}>
+              <Plus className="h-3.5 w-3.5" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>New SQL console (Ctrl+Shift+N)</TooltipContent>
+        </Tooltip>
+        <span className="px-2 text-xs text-muted-foreground">New SQL console</span>
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center border-b border-border bg-tab-inactive overflow-x-auto">

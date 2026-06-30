@@ -28,9 +28,9 @@ class HistoryStore {
   constructor() {
     const path = require('path');
     const fs = require('fs');
-    this.filePath = path.resolve(__dirname, '../../data/query-history.json');
-    const dir = path.dirname(this.filePath);
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    const dataDir = process.env.DATA_DIR || path.resolve(__dirname, '../../data');
+    this.filePath = path.join(dataDir, 'query-history.json');
+    if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
     if (fs.existsSync(this.filePath)) {
       try {
         this.entries = JSON.parse(fs.readFileSync(this.filePath, 'utf-8'));

@@ -8,6 +8,7 @@ import AppHeader from './AppHeader';
 import StatusBar from './StatusBar';
 import ToolPanel from './ToolPanel';
 import DatabaseExplorer from '@/components/explorer/DatabaseExplorer';
+import ScriptsTree from '@/components/explorer/ScriptsTree';
 import TabBar from '@/components/workspace/TabBar';
 import WorkspaceArea from '@/components/workspace/WorkspaceArea';
 import CommandPalette from '@/components/workspace/CommandPalette';
@@ -15,7 +16,7 @@ import { useWorkspaceStore } from '@/stores/workspaceStore';
 import { useIdeShortcuts } from '@/hooks/useIdeShortcuts';
 
 function ExplorerPanel() {
-  const { explorerVisible, toggleExplorer } = useWorkspaceStore();
+  const { explorerVisible, toggleExplorer, createSqlTab, requestSaveAs } = useWorkspaceStore();
 
   if (!explorerVisible) {
     return (
@@ -39,8 +40,16 @@ function ExplorerPanel() {
           <PanelLeftClose className="h-4 w-4" />
         </Button>
       </div>
-      <div className="min-h-0 flex-1 overflow-hidden">
-        <DatabaseExplorer />
+      <div className="min-h-0 flex-1 overflow-hidden flex flex-col">
+        <ScriptsTree
+          onNewFile={(folder) => {
+            createSqlTab();
+            requestSaveAs(folder);
+          }}
+        />
+        <div className="min-h-0 flex-1 overflow-hidden">
+          <DatabaseExplorer />
+        </div>
       </div>
     </div>
   );

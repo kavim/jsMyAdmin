@@ -2,12 +2,18 @@ import { useEffect, useCallback } from 'react';
 import { useWorkspaceStore } from '@/stores/workspaceStore';
 
 export function useIdeShortcuts() {
-  const { createSqlTab, closeTab, activeTabId, toggleExplorer, toggleToolPanel, tabs, setActiveTab } =
+  const { createSqlTab, closeTab, activeTabId, toggleExplorer, toggleToolPanel, tabs, setActiveTab, saveHandler } =
     useWorkspaceStore();
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       const mod = e.ctrlKey || e.metaKey;
+
+      if (mod && e.key.toLowerCase() === 's' && !e.shiftKey) {
+        e.preventDefault();
+        saveHandler?.();
+        return;
+      }
 
       if (mod && e.shiftKey && e.key.toLowerCase() === 'n') {
         e.preventDefault();
@@ -48,7 +54,7 @@ export function useIdeShortcuts() {
         document.dispatchEvent(new CustomEvent('elendra:open-command-palette'));
       }
     },
-    [createSqlTab, closeTab, activeTabId, toggleExplorer, toggleToolPanel, tabs, setActiveTab]
+    [createSqlTab, closeTab, activeTabId, toggleExplorer, toggleToolPanel, tabs, setActiveTab, saveHandler]
   );
 
   useEffect(() => {

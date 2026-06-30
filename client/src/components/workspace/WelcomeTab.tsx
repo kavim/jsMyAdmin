@@ -1,4 +1,6 @@
+import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { Plus } from 'lucide-react';
 import { useWorkspaceStore } from '@/stores/workspaceStore';
 
 const shortcuts = [
@@ -41,7 +43,13 @@ export default function WelcomeTab() {
     <div className="flex h-full flex-col items-center justify-center bg-editor text-muted-foreground">
       <div className="max-w-md space-y-4 px-6">
         <h2 className="text-center text-lg font-medium text-foreground">Elendra</h2>
-        <p className="text-center text-sm">Database IDE — select a table or open a console to begin.</p>
+        <p className="text-center text-sm">Database IDE — open a SQL console or pick a script from the explorer.</p>
+        <div className="flex justify-center pt-2">
+          <Button className="gap-2" onClick={() => createSqlTab()}>
+            <Plus className="h-4 w-4" />
+            New SQL console
+          </Button>
+        </div>
         <ul className="space-y-2 text-sm">
           {shortcuts.map((item) => (
             <li key={item.action} className="flex items-center justify-between gap-8">
@@ -58,7 +66,7 @@ export default function WelcomeTab() {
             </li>
           ))}
         </ul>
-        <p className="pt-4 text-center text-xs">Drop .sql files on the workspace to open</p>
+        <p className="pt-4 text-center text-xs">Scripts save to data/scripts/ · Drop .sql files to open</p>
       </div>
     </div>
   );

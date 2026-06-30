@@ -115,3 +115,16 @@ export interface OrderBy {
   column: string;
   direction: 'ASC' | 'DESC';
 }
+
+export interface ScriptNode {
+  name: string;
+  path: string;
+  kind: 'file' | 'folder';
+  children?: ScriptNode[];
+}
+
+export interface ScriptFile {
+  path: string;
+  content: string;
+  updatedAt: string;
+}
